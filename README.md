@@ -5,7 +5,7 @@ Sistema completo de gestão para produção de Physalis em Ibiúna/SP.
 
 ## Acesso
 
-Acesse o sistema em: https://gustavogodinho80-código.github.io/agrotavo/
+Acesse o sistema em: https://gustavogodinho80-code.github.io/agrotavo/
 
 ## Funcionalidades
 
