@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Sistema de Gestão de Physalis - Agrotavo">
+<title>Agrotavo — Gestão Physalis</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#f5f5f0;color:#1a1a18}
+#app{max-width:1100px;margin:0 auto;background:#fff;min-height:100vh}
+.hd{background:linear-gradient(135deg,#3B6D11,#085041);padding:20px;color:#fff;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.logo{font-size:26px;font-weight:700}
+.save{background:rgba(255,255,255,.2);padding:6px 14px;border-radius:20px;font-size:12px}
+.save.ok{background:rgba(159,225,203,.3);color:#9FE1CB}
+.tabs{display:flex;background:#27500A;overflow-x:auto}
+.tab{padding:14px 18px;border:none;background:none;color:rgba(255,255,255,.65);font-size:13px;cursor:pointer;white-space:nowrap}
+.tab:hover{color:rgba(255,255,255,.9)}
+.tab.active{color:#9FE1CB;border-bottom:3px solid #1D9E75}
+.pg{display:none;padding:24px}
+.pg.active{display:block}
+.ttl{font-size:22px;font-weight:700;color:#3B6D11;margin-bottom:18px}
+.card{background:#fff;border:1px solid #e0e0d8;border-radius:10px;padding:18px;margin-bottom:18px}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:12px}
+.fld{display:flex;flex-direction:column;gap:4px}
+.fld label{font-size:11px;font-weight:600;color:#6b6b65;text-transform:uppercase}
+.fld input,.fld select,.fld textarea{padding:10px;border:1px solid #e0e0d8;border-radius:8px;font-size:14px}
+.fld input:focus,.fld select:focus,.fld textarea:focus{outline:none;border-color:#639922}
+.fld input[readonly]{background:#f7f7f3}
+.fld textarea{min-height:70px;resize:vertical}
+.outro{display:none;margin-top:6px}
+.outro.show{display:block}
+.btn{padding:10px 22px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
+.btn-p{background:#3B6D11;color:#fff}
+.btn-s{background:#fff;border:1px solid #e0e0d8}
+.btn-d{background:#A32D2D;color:#fff;font-size:13px;padding:8px 16px}
+.btns{display:flex;gap:10px;margin-top:14px;flex-wrap:wrap}
+table{width:100%;border-collapse:collapse;font-size:13px;margin-top:14px}
+th{background:#EAF3DE;color:#3B6D11;padding:12px;text-align:left;font-weight:700;font-size:11px;text-transform:uppercase}
+td{padding:12px;border-bottom:1px solid #f0f0eb}
+tr:hover td{background:#fafaf7}
+.badge{display:inline-block;padding:4px 10px;border-radius:16px;font-size:11px;font-weight:600}
+.badge-g{background:#EAF3DE;color:#3B6D11}
+.badge-a{background:#FAEEDA;color:#BA7517}
+.badge-r{background:#FCEBEB;color:#A32D2D}
+.del{background:none;border:none;color:#A32D2D;font-size:16px;cursor:pointer;opacity:.5}
+.del:hover{opacity:1}
+.empty{text-align:center;padding:40px;color:#9b9b95}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-bottom:20px}
+.metric{background:#f7f7f3;border-radius:10px;padding:16px;text-align:center}
+.metric-l{font-size:11px;font-weight:600;color:#6b6b65;text-transform:uppercase;margin-bottom:6px}
+.metric-v{font-size:24px;font-weight:700}
+.metric-v.green{color:#3B6D11}
+.metric-v.red{color:#A32D2D}
+.info{background:#E6F1FB;border:1px solid #B5D4F4;border-radius:10px;padding:14px;margin-bottom:16px;font-size:13px;color:#185FA5}
+.alert{background:#FCEBEB;border:1px solid #F7C1C1;border-radius:10px;padding:12px;margin-bottom:12px;color:#A32D2D;font-size:13px;font-weight:600}
+.sep{height:1px;background:#e8e8e0;margin:18px 0}
+.sub{font-size:12px;font-weight:700;color:#6b6b65;text-transform:uppercase;margin-bottom:10px}
+.si{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid#f0f0eb}
+.si:last-child{border-bottom:none}
+.sn{font-size:14px;font-weight:600}
+.sq{font-size:16px;font-weight:700;color:#3B6D11}
+.sq.low{color:#A32D2D}
+@media(max-width:600px){.row{grid-template-columns:1fr}.logo{font-size:22px}.hd{padding:15px}}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="hd">
+<div class="logo">🌱 Agrotavo</div>
+<div class="save ok" id="st">✓ Salvo</div>
+</div>
+<div class="tabs">
+<button class="tab active" onclick="showTab('campo',this)">📋 Campo</button>
+<button class="tab" onclick="showTab('custos',this)">💰 Custos</button>
+<button class="tab" onclick="showTab('vendas',this)">📄 Vendas</button>
+<button class="tab" onclick="showTab('estoque',this)">📦 Estoque</button>
+<button class="tab" onclick="showTab('config',this)">⚙️ Config</button>
+</div>
+
+<div id="tab-campo" class="pg active">
+<div class="ttl">Caderno de Campo</div>
+<div class="card">
+<div class="row">
+<div class="fld"><label>Data</label><input type="date" id="c-data"></div>
+<div class="fld">
+<label>Atividade</label>
+<select id="c-ativ" onchange="toggleOutro('c-ativ','c-ativ-outro')">
+<option value="">Selecionar...</option>
+<option>Plantio</option><option>Semeio</option><option>Capina</option><option>Estaqueamento</option>
+<option>Pulverização</option><option>Fertirrigação</option><option>Colheita</option><option>Adubação</option>
+<option>Calagem</option><option>Irrigação</option><option>Manutenção</option>
+<option value="__outro__">Outro...</option>
+</select>
+<input type="text" id="c-ativ-outro" class="outro" placeholder="Descreva a atividade">
+</div>
+<div class="fld"><label>Responsável</label><input type="text" id="c-resp"></div>
+</div>
+<div class="fld"><label>Obs</label><textarea id="c-obs"></textarea></div>
+<div class="btns"><button class="btn btn-p" onclick="addCampo()">✓ Registrar</button></div>
+</div>
+<table><thead><tr><th>Data</th><th>Atividade</th><th>Responsável</th><th>Obs</th><th style="width:50px"></th></tr></thead><tbody id="campo-tb"></tbody></table>
+</div>
+
+<div id="tab-custos" class="pg">
+<div class="ttl">Custos</div>
+<div class="card">
+<div class="row">
+<div class="fld"><label>Data</label><input type="date" id="cu-data"></div>
+<div class="fld"><label>Produto</label><input type="text" id="cu-prod"></div>
+<div class="fld"><label>Qtd</label><input type="number" id="cu-qtd" step="0.01"></div>
+<div class="fld"><label>V.Unit (R$)</label><input type="number" id="cu-vu" step="0.01"></div>
+</div>
+<div class="btns"><button class="btn btn-p" onclick="addCusto()">✓ Lançar</button></div>
+</div>
+<div class="metrics"><div class="metric"><div class="metric-l">Total</div><div class="metric-v red" id="m-cu">R$ 0</div></div></div>
+<table><thead><tr><th>Data</th><th>Produto</th><th>Qtd</th><th>V.Unit</th><th>Total</th><th style="width:50px"></th></tr></thead><tbody id="cu-tb"></tbody></table>
+</div>
+
+<div id="tab-vendas" class="pg">
+<div class="ttl">Notas Fiscais</div>
+<div class="card">
+<div class="row">
+<div class="fld"><label>NFE</label><input type="text" id="v-nfe"></div>
+<div class="fld"><label>Data</label><input type="date" id="v-data"></div>
+<div class="fld"><label>Qtd Cx</label><input type="number" id="v-qtd" oninput="calcV()"></div>
+<div class="fld"><label>Valor/Cx</label><input type="number" id="v-vu" step="0.01" oninput="calcV()"></div>
+<div class="fld"><label>Total</label><input type="number" id="v-tot" readonly></div>
+</div>
+<div class="sep"></div>
+<div class="sub">Custos da Venda</div>
+<div class="row">
+<div class="fld"><label>Mão Obra</label><input type="number" id="v-mao" step="0.01" oninput="calcV()"></div>
+<div class="fld"><label>Embalagem</label><input type="number" id="v-emb" step="0.01" oninput="calcV()"></div>
+<div class="fld"><label>Etiqueta</label><input type="number" id="v-eti" step="0.01" oninput="calcV()"></div>
+<div class="fld"><label>Caixa</label><input type="number" id="v-cx" step="0.01" oninput="calcV()"></div>
+<div class="fld"><label>Transporte</label><input type="number" id="v-tr" step="0.01" oninput="calcV()"></div>
+<div class="fld"><label>Extras</label><input type="number" id="v-ex" step="0.01" oninput="calcV()"></div>
+</div>
+<div class="row">
+<div class="fld"><label>Total Custos</label><input type="number" id="v-tc" readonly></div>
+<div class="fld"><label>Lucro</label><input type="number" id="v-luc" readonly></div>
+<div class="fld"><label>Margem</label><input type="text" id="v-mg" readonly></div>
+</div>
+<div class="btns"><button class="btn btn-p" onclick="addVenda()">✓ Registrar</button></div>
+</div>
+<div class="metrics">
+<div class="metric"><div class="metric-l">Receita</div><div class="metric-v green" id="m-rec">R$ 0</div></div>
+<div class="metric"><div class="metric-l">Custos</div><div class="metric-v red" id="m-vc">R$ 0</div></div>
+<div class="metric"><div class="metric-l">Lucro</div><div class="metric-v" id="m-luc">R$ 0</div></div>
+<div class="metric"><div class="metric-l">Caixas</div><div class="metric-v" id="m-cx">0</div></div>
+</div>
+<table><thead><tr><th>NFE</th><th>Data</th><th>Qtd</th><th>Total</th><th>Custos</th><th>Lucro</th><th>Margem</th><th style="width:50px"></th></tr></thead><tbody id="v-tb"></tbody></table>
+</div>
+
+<div id="tab-estoque" class="pg">
+<div class="ttl">Estoque</div>
+<div id="est-al"></div>
+<div class="card">
+<div class="sub">Entrada</div>
+<div class="row">
+<div class="fld">
+<label>Item</label>
+<select id="e-item" onchange="toggleOutro('e-item','e-item-outro')">
+<option value="embalagem">Embalagem 100g</option>
+<option value="etiqueta">Etiqueta</option>
+<option value="cxpapelao">Caixa Papelão</option>
+<option value="adubo">Adubo (kg)</option>
+<option value="defensivo">Defensivo (L)</option>
+<option value="substrato">Substrato (sc)</option>
+<option value="mulching">Mulching (m)</option>
+<option value="__outro__">Outro...</option>
+</select>
+<input type="text" id="e-item-outro" class="outro" placeholder="Nome do item">
+</div>
+<div class="fld"><label>Qtd</label><input type="number" id="e-qtd" step="0.01"></div>
+<div class="fld"><label>Data</label><input type="date" id="e-data"></div>
+<div class="fld"><label>Mínimo</label><input type="number" id="e-min" step="0.01"></div>
+</div>
+<div class="btns"><button class="btn btn-p" onclick="addEst()">✓ Registrar</button></div>
+</div>
+<div class="info"><strong>Baixa Automática:</strong> 1 cx vendida = 8 embalagens + 8 etiquetas + 1 caixa papelão</div>
+<div class="card"><div class="sub">Posição Atual</div><div id="est-pos"></div></div>
+<table><thead><tr><th>Data</th><th>Item</th><th>Tipo</th><th>Qtd</th><th style="width:50px"></th></tr></thead><tbody id="e-tb"></tbody></table>
+</div>
+
+<div id="tab-config" class="pg">
+<div class="ttl">Configurações</div>
+<div class="info"><strong>✓ Salvamento Automático</strong><br>Dados salvos no navegador deste dispositivo. Use backup para transferir entre dispositivos.</div>
+<div class="card">
+<h3 style="margin-bottom:12px">Backup</h3>
+<div class="btns">
+<button class="btn btn-p" onclick="exp()">⬇ Exportar</button>
+<button class="btn btn-s" onclick="document.getElementById('imp').click()">⬆ Importar</button>
+<input type="file" id="imp" accept=".json" style="display:none" onchange="imp(event)">
+</div>
+</div>
+<div class="card" style="border-color:#F7C1C1">
+<h3 style="margin-bottom:12px;color:#A32D2D">⚠ Perigo</h3>
+<button class="btn btn-d" onclick="limpar()">🗑 Apagar Tudo</button>
+</div>
+</div>
+
+</div>
+
+<script>
+const K='agrotavo_v1';
+let campo=[],custos=[],vendas=[],estoque={},estoqueLog=[];
+const EN={embalagem:'Embalagem 100g',etiqueta:'Etiqueta',cxpapelao:'Caixa Papelão',adubo:'Adubo (kg)',defensivo:'Defensivo (L)',substrato:'Substrato (sc)',mulching:'Mulching (m)'};
+
+function save(){try{localStorage.setItem(K,JSON.stringify({campo,custos,vendas,estoque,estoqueLog}));const s=document.getElementById('st');s.textContent='✓ Salvando...';setTimeout(()=>s.textContent='✓ Salvo',500);return true}catch(e){return false}}
+
+function load(){try{const d=localStorage.getItem(K);if(d){const o=JSON.parse(d);campo=o.campo||[];custos=o.custos||[];vendas=o.vendas||[];estoque=o.estoque||{};estoqueLog=o.estoqueLog||[];return true}}catch(e){}return false}
+
+function fmt(v){return'R$ '+v.toFixed(2).replace('.',',')}
+function today(){return new Date().toISOString().slice(0,10)}
+
+function toggleOutro(sid,oid){const s=document.getElementById(sid),o=document.getElementById(oid);if(!s||!o)return;if(s.value==='__outro__'){o.classList.add('show');o.focus()}else{o.classList.remove('show');o.value=''}}
+
+function getVal(sid,oid){const s=document.getElementById(sid);if(!s)return'';if(s.value==='__outro__'){const o=document.getElementById(oid);return o?o.value.trim():''}return s.value}
+
+function showTab(t,b){document.querySelectorAll('.pg').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));document.getElementById('tab-'+t).classList.add('active');b.classList.add('active');if(t==='estoque')rEst()}
+
+function addCampo(){const data=document.getElementById('c-data').value;const ativ=getVal('c-ativ','c-ativ-outro');const resp=document.getElementById('c-resp').value;const obs=document.getElementById('c-obs').value;if(!data||!ativ){alert('Preencha data e atividade');return}campo.push({data,ativ,resp,obs,id:Date.now()});save();rCampo();document.getElementById('c-ativ').value='';document.getElementById('c-ativ-outro').value='';document.getElementById('c-ativ-outro').classList.remove('show');['c-resp','c-obs'].forEach(i=>document.getElementById(i).value='')}
+
+function rCampo(){const t=document.getElementById('campo-tb');if(!campo.length){t.innerHTML='<tr><td colspan="5" class="empty">Vazio</td></tr>';return}t.innerHTML=campo.slice().reverse().map((r,i)=>`<tr><td>${r.data}</td><td><span class="badge badge-g">${r.ativ}</span></td><td>${r.resp||'—'}</td><td>${r.obs||'—'}</td><td><button class="del" onclick="delC(${campo.length-1-i})">✕</button></td></tr>`).join('')}
+
+function delC(i){if(!confirm('Remover?'))return;campo.splice(i,1);save();rCampo()}
+
+function addCusto(){const data=document.getElementById('cu-data').value;const prod=document.getElementById('cu-prod').value;const qtd=parseFloat(document.getElementById('cu-qtd').value)||0;const vu=parseFloat(document.getElementById('cu-vu').value)||0;if(!data||!prod||!qtd||!vu){alert('Preencha todos os campos');return}custos.push({data,prod,qtd,vu,tot:qtd*vu,id:Date.now()});save();rCu();['cu-prod','cu-qtd','cu-vu'].forEach(i=>document.getElementById(i).value='')}
+
+function rCu(){const t=document.getElementById('cu-tb');if(!custos.length){t.innerHTML='<tr><td colspan="6" class="empty">Vazio</td></tr>';document.getElementById('m-cu').textContent='R$ 0';return}t.innerHTML=custos.slice().reverse().map((r,i)=>`<tr><td>${r.data}</td><td>${r.prod}</td><td>${r.qtd}</td><td>${fmt(r.vu)}</td><td style="font-weight:600">${fmt(r.tot)}</td><td><button class="del" onclick="delCu(${custos.length-1-i})">✕</button></td></tr>`).join('');document.getElementById('m-cu').textContent=fmt(custos.reduce((a,r)=>a+r.tot,0))}
+
+function delCu(i){if(!confirm('Remover?'))return;custos.splice(i,1);save();rCu()}
+
+function calcV(){const qtd=parseFloat(document.getElementById('v-qtd').value)||0;const vu=parseFloat(document.getElementById('v-vu').value)||0;const tot=qtd*vu;document.getElementById('v-tot').value=tot.toFixed(2);const mao=parseFloat(document.getElementById('v-mao').value)||0;const emb=parseFloat(document.getElementById('v-emb').value)||0;const eti=parseFloat(document.getElementById('v-eti').value)||0;const cx=parseFloat(document.getElementById('v-cx').value)||0;const tr=parseFloat(document.getElementById('v-tr').value)||0;const ex=parseFloat(document.getElementById('v-ex').value)||0;const tc=mao+emb+eti+cx+tr+ex;const luc=tot-tc;const mg=tot>0?((luc/tot)*100).toFixed(1):'0';document.getElementById('v-tc').value=tc.toFixed(2);document.getElementById('v-luc').value=luc.toFixed(2);document.getElementById('v-mg').value=mg+'%'}
+
+function addVenda(){const nfe=document.getElementById('v-nfe').value;const data=document.getElementById('v-data').value;const qtd=parseFloat(document.getElementById('v-qtd').value)||0;const vu=parseFloat(document.getElementById('v-vu').value)||0;const tot=parseFloat(document.getElementById('v-tot').value)||0;const mao=parseFloat(document.getElementById('v-mao').value)||0;const emb=parseFloat(document.getElementById('v-emb').value)||0;const eti=parseFloat(document.getElementById('v-eti').value)||0;const cx=parseFloat(document.getElementById('v-cx').value)||0;const tr=parseFloat(document.getElementById('v-tr').value)||0;const ex=parseFloat(document.getElementById('v-ex').value)||0;const tc=mao+emb+eti+cx+tr+ex;const luc=tot-tc;const mg=tot>0?((luc/tot)*100).toFixed(1):'0';if(!nfe||!data||!qtd||!vu){alert('Preencha NFE, data, quantidade e valor');return}vendas.push({nfe,data,qtd,vu,tot,mao,emb,eti,cx,tr,ex,tc,luc,mg,id:Date.now()});baixaEst(qtd,data);save();rV();['v-nfe','v-qtd','v-vu','v-tot','v-mao','v-emb','v-eti','v-cx','v-tr','v-ex','v-tc','v-luc','v-mg'].forEach(i=>document.getElementById(i).value='')}
+
+function baixaEst(cx,d){['embalagem','etiqueta'].forEach(it=>{const q=cx*8;if(!estoque[it])estoque[it]={qtd:0,min:0,nome:EN[it]};estoque[it].qtd=Math.max(0,estoque[it].qtd-q);estoqueLog.push({data:d,item:EN[it],tipo:'Saída',qtd:q,id:Date.now()})});if(!estoque.cxpapelao)estoque.cxpapelao={qtd:0,min:0,nome:'Caixa Papelão'};estoque.cxpapelao.qtd=Math.max(0,estoque.cxpapelao.qtd-cx);estoqueLog.push({data:d,item:'Caixa Papelão',tipo:'Saída',qtd:cx,id:Date.now()})}
+
+function devolveEst(cx){['embalagem','etiqueta'].forEach(it=>{const q=cx*8;if(!estoque[it])estoque[it]={qtd:0,min:0,nome:EN[it]};estoque[it].qtd+=q});if(!estoque.cxpapelao)estoque.cxpapelao={qtd:0,min:0,nome:'Caixa Papelão'};estoque.cxpapelao.qtd+=cx}
+
+function rV(){const t=document.getElementById('v-tb');if(!vendas.length){t.innerHTML='<tr><td colspan="8" class="empty">Vazio</td></tr>';['m-rec','m-vc','m-luc','m-cx'].forEach(i=>document.getElementById(i).textContent='R$ 0');return}t.innerHTML=vendas.slice().reverse().map((r,i)=>{const mc=r.mg>=30?'badge-g':r.mg>=15?'badge-a':'badge-r';return`<tr><td style="font-weight:600">${r.nfe}</td><td>${r.data}</td><td>${r.qtd}</td><td style="font-weight:600">${fmt(r.tot)}</td><td>${fmt(r.tc)}</td><td style="font-weight:600;color:${r.luc>=0?'#3B6D11':'#A32D2D'}">${fmt(r.luc)}</td><td><span class="badge ${mc}">${r.mg}%</span></td><td><button class="del" onclick="delV(${vendas.length-1-i})">✕</button></td></tr>`}).join('');const rec=vendas.reduce((a,r)=>a+r.tot,0);const vc=vendas.reduce((a,r)=>a+r.tc,0);const luc=vendas.reduce((a,r)=>a+r.luc,0);document.getElementById('m-rec').textContent=fmt(rec);document.getElementById('m-vc').textContent=fmt(vc);const le=document.getElementById('m-luc');le.textContent=fmt(luc);le.className='metric-v '+(luc>=0?'green':'red');document.getElementById('m-cx').textContent=vendas.reduce((a,r)=>a+r.qtd,0)}
+
+function delV(i){if(!confirm('Remover esta venda? O estoque será devolvido.'))return;const v=vendas[i];devolveEst(v.qtd);vendas.splice(i,1);save();rV();rEst()}
+
+function addEst(){const itKey=document.getElementById('e-item').value;const itNome=itKey==='__outro__'?document.getElementById('e-item-outro').value.trim():(EN[itKey]||itKey);const itId=itKey==='__outro__'?'outro_'+itNome.toLowerCase().replace(/\s/g,'_'):itKey;const qtd=parseFloat(document.getElementById('e-qtd').value)||0;const data=document.getElementById('e-data').value;const min=parseFloat(document.getElementById('e-min').value)||0;if(!itNome||!qtd||!data){alert('Preencha item, quantidade e data');return}if(!estoque[itId])estoque[itId]={qtd:0,min:0,nome:itNome};estoque[itId].qtd+=qtd;if(min>0)estoque[itId].min=min;estoque[itId].nome=itNome;estoqueLog.push({data,item:itNome,tipo:'Entrada',qtd,id:Date.now()});save();rEst();['e-qtd','e-min','e-item-outro'].forEach(i=>document.getElementById(i).value='');document.getElementById('e-item-outro').classList.remove('show')}
+
+function rEst(){const al=document.getElementById('est-al');const pos=document.getElementById('est-pos');const t=document.getElementById('e-tb');const k=Object.keys(estoque);let aH='';if(!k.length){pos.innerHTML='<div class="empty">Vazio</div>';al.innerHTML='';t.innerHTML='<tr><td colspan="5" class="empty">Vazio</td></tr>';return}let pH='';k.forEach(x=>{const it=estoque[x];if(it.min>0&&it.qtd<=it.min)aH+=`<div class="alert">⚠ <strong>${it.nome}</strong>: ${it.qtd} restantes (mín: ${it.min})</div>`;pH+=`<div class="si"><div class="sn">${it.nome}</div><div class="sq ${it.min>0&&it.qtd<=it.min?'low':''}">${it.qtd}</div></div>`});al.innerHTML=aH;pos.innerHTML=pH;if(!estoqueLog.length){t.innerHTML='<tr><td colspan="5" class="empty">Vazio</td></tr>';return}t.innerHTML=estoqueLog.slice().reverse().map((r,i)=>`<tr><td>${r.data}</td><td>${r.item}</td><td><span class="badge ${r.tipo==='Entrada'?'badge-g':'badge-r'}">${r.tipo}</span></td><td>${r.qtd}</td><td><button class="del" onclick="delEstLog(${estoqueLog.length-1-i})">✕</button></td></tr>`).join('')}
+
+function delEstLog(i){if(!confirm('Remover esta movimentação?'))return;estoqueLog.splice(i,1);save();rEst()}
+
+function exp(){const d={campo,custos,vendas,estoque,estoqueLog,ts:new Date().toISOString()};const b=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='agrotavo_'+today()+'.json';a.click()}
+
+function imp(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=x=>{try{const d=JSON.parse(x.target.result);if(!confirm('Substituir tudo?'))return;campo=d.campo||[];custos=d.custos||[];vendas=d.vendas||[];estoque=d.estoque||{};estoqueLog=d.estoqueLog||[];save();rCampo();rCu();rV();rEst();alert('Importado!')}catch(e){alert('Erro')}};r.readAsText(f)}
+
+function limpar(){if(!confirm('Apagar tudo?'))return;if(!confirm('Confirmar?'))return;campo=[];custos=[];vendas=[];estoque={};estoqueLog=[];localStorage.removeItem(K);rCampo();rCu();rV();rEst()}
+
+load();['c-data','cu-data','v-data','e-data'].forEach(i=>{const e=document.getElementById(i);if(e)e.value=today()});rCampo();rCu();rV();rEst();
+</script>
+</body>
+</html>
